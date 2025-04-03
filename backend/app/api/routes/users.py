@@ -1,6 +1,5 @@
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import UUID4
 from app import crud
 from app.api.deps import (
     CurrentUser,
@@ -22,6 +21,7 @@ from app.models import (
     UserUpdateMe,
 )
 from app.utils import generate_new_account_email, send_email
+from backend.app.models import PyObjectId
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -37,7 +37,9 @@ async def read_users(db: DbDep, skip: int = 0, limit: int = 100) -> Any:
     """
     count = await db.users.count_documents({})
     users_cursor = db.users.find({}).skip(skip).limit(limit)
-    users = [User(**user) async for user in users_cursor]
+
+    users = [UserPublic(**user) async for user in users_cursor]
+
     return UsersPublic(data=users, count=count)
 
 
@@ -51,7 +53,7 @@ async def create_user(*, db: DbDep, user_in: UserCreate) -> Any:
     user = await crud.get_user_by_email(db=db, email=user_in.email)
     if user:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system.",
         )
 
@@ -152,7 +154,9 @@ async def register_user(db: DbDep, user_in: UserRegister) -> Any:
 
 
 @router.get("/{user_id}", response_model=UserPublic)
-async def read_user_by_id(user_id: UUID4, db: DbDep, current_user: CurrentUser) -> Any:
+async def read_user_by_id(
+    user_id: PyObjectId, db: DbDep, current_user: CurrentUser
+) -> Any:
     """
     Get a specific user by id.
     """
@@ -181,7 +185,7 @@ async def read_user_by_id(user_id: UUID4, db: DbDep, current_user: CurrentUser) 
 async def update_user(
     *,
     db: DbDep,
-    user_id: UUID4,
+    user_id: PyObjectId,
     user_in: UserUpdate,
 ) -> Any:
     """
@@ -209,7 +213,9 @@ async def update_user(
 
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])
-async def delete_user(db: DbDep, current_user: CurrentUser, user_id: UUID4) -> Message:
+async def delete_user(
+    db: DbDep, current_user: CurrentUser, user_id: PyObjectId
+) -> Message:
     """
     Delete a user.
     """
