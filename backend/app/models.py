@@ -1,28 +1,43 @@
 from typing import Optional, List
 from datetime import datetime
 from pydantic import EmailStr, Field, BaseModel, ConfigDict
+from pydantic_core import core_schema
 from bson import ObjectId
+from typing import Any
 
 
-# Pydantic config for ObjectId handling
-class PyObjectId(ObjectId):
+class PyObjectId:
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(  # type: ignore[misc]
+        cls, _source_type: Any, _handler: Any
+    ) -> core_schema.CoreSchema:
+        return core_schema.json_or_python_schema(
+            json_schema=core_schema.str_schema(),
+            python_schema=core_schema.union_schema(
+                [
+                    core_schema.is_instance_schema(ObjectId),
+                    core_schema.chain_schema(
+                        [
+                            core_schema.str_schema(),
+                            core_schema.no_info_plain_validator_function(cls.validate),
+                        ]
+                    ),
+                ]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda x: str(x)
+            ),
+        )
 
     @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
+    def validate(cls, value: Any) -> ObjectId:  # type: ignore[misc]
+        if not ObjectId.is_valid(value):
             raise ValueError("Invalid ObjectId")
-        return ObjectId(v)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+        return ObjectId(value)
 
 
 class UserBase(BaseModel):
-    email: EmailStr = Field(..., unique=True, max_length=255)
+    email: EmailStr = Field(..., json_schema_extra={"unique": True}, max_length=255)
     is_active: bool = True
     is_superuser: bool = False
     full_name: Optional[str] = Field(default=None, max_length=255)
@@ -70,7 +85,7 @@ class User(UserBase):
 
 
 class UserPublic(UserBase):
-    id: str = Field(..., alias="_id")
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     model_config = ConfigDict(populate_by_name=True, json_encoders={ObjectId: str})
 
