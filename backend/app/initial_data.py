@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 async def init() -> None:
     # Initialize MongoDB connection
     client = AsyncIOMotorClient(settings.MONGODB_URI)
-    with client[settings.MONGODB_DB_NAME] as db:
-        await init_db(db)
+    db = client[settings.MONGODB_DB_NAME]
+    await init_db(db)
 
 
 async def main() -> None:

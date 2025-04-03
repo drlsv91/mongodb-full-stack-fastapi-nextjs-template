@@ -1,5 +1,4 @@
 import uuid
-from typing import Any
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import ValidationError
 from app.core.security import get_password_hash, verify_password
