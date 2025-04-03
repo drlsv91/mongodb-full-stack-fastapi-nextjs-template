@@ -7,7 +7,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import ValidationError
 from app.core import security
 from app.core.config import settings
-from app.models import TokenPayload, User
+from app.models import TokenPayload, User, PyObjectId
+
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -18,8 +19,9 @@ client = AsyncIOMotorClient(settings.MONGODB_URI)
 
 
 async def get_db() -> AsyncGenerator[AsyncIOMotorClient, None]:
-    with client[settings.MONGODB_DB_NAME] as db:
-        yield db
+
+    db = client[settings.MONGODB_DB_NAME]
+    yield db
 
 
 DbDep = Annotated[AsyncIOMotorClient, Depends(get_db)]
@@ -38,7 +40,9 @@ async def get_current_user(db: DbDep, token: TokenDep) -> User:
             detail="Could not validate credentials",
         )
 
-    user_data = await db.users.find_one({"_id": token_data.sub})
+    user_id = PyObjectId.validate(token_data.sub)
+    user_data = await db.users.find_one({"_id": user_id})
+    user_data["_id"] = str(user_data["_id"])
     if not user_data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"

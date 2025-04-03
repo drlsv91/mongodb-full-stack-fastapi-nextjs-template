@@ -111,7 +111,7 @@ class ItemUpdate(ItemBase):
 
 class Item(ItemBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    owner_id: PyObjectId
+    owner_id: PyObjectId = Field(...)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -123,8 +123,8 @@ class Item(ItemBase):
 
 
 class ItemPublic(ItemBase):
-    id: str = Field(..., alias="_id")
-    owner_id: str
+    id: PyObjectId = Field(..., alias="_id")
+    owner_id: PyObjectId
 
     model_config = ConfigDict(populate_by_name=True, json_encoders={ObjectId: str})
 
