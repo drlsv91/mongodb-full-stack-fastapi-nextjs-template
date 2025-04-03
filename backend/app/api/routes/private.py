@@ -30,8 +30,8 @@ async def create_user(user_in: PrivateUserCreate, db: DbDep) -> Any:
         hashed_password=get_password_hash(user_in.password),
     )
 
-    result = await db.users.insert_one(user)
+    result = await db.users.insert_one(user.model_dump())
 
     created_user = await db.users.find_one({"_id": result.inserted_id})
 
-    return created_user
+    return UserPublic(**created_user)

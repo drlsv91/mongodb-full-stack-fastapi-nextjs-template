@@ -1,8 +1,16 @@
 from typing import Any
 from fastapi import APIRouter, HTTPException, status
 from app.api.deps import CurrentUser, DbDep
-from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, Message
-from backend.app.models import PyObjectId
+from app.models import (
+    Item,
+    ItemCreate,
+    ItemPublic,
+    ItemsPublic,
+    ItemUpdate,
+    Message,
+    PyObjectId,
+)
+
 
 router = APIRouter(prefix="/items", tags=["items"])
 
@@ -27,7 +35,7 @@ async def read_items(
             db.items.find({"owner_id": current_user.id}).skip(skip).limit(limit)
         )
 
-    items = [Item(**item) async for item in items_cursor]
+    items = [ItemPublic(**item) async for item in items_cursor]
     return ItemsPublic(data=items, count=count)
 
 

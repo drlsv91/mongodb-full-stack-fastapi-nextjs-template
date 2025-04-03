@@ -19,9 +19,10 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+    PyObjectId,
 )
 from app.utils import generate_new_account_email, send_email
-from backend.app.models import PyObjectId
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
