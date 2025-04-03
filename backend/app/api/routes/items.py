@@ -1,8 +1,8 @@
 from typing import Any
 from fastapi import APIRouter, HTTPException, status
-from pydantic import UUID4
 from app.api.deps import CurrentUser, DbDep
 from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, Message
+from backend.app.models import PyObjectId
 
 router = APIRouter(prefix="/items", tags=["items"])
 
@@ -32,7 +32,7 @@ async def read_items(
 
 
 @router.get("/{id}", response_model=ItemPublic)
-async def read_item(db: DbDep, current_user: CurrentUser, id: UUID4) -> Any:
+async def read_item(db: DbDep, current_user: CurrentUser, id: PyObjectId) -> Any:
     """
     Get item by ID.
     """
@@ -68,7 +68,7 @@ async def update_item(
     *,
     db: DbDep,
     current_user: CurrentUser,
-    id: UUID4,
+    id: PyObjectId,
     item_in: ItemUpdate,
 ) -> Any:
     """
@@ -92,7 +92,7 @@ async def update_item(
 
 
 @router.delete("/{id}")
-async def delete_item(db: DbDep, current_user: CurrentUser, id: UUID4) -> Message:
+async def delete_item(db: DbDep, current_user: CurrentUser, id: PyObjectId) -> Message:
     """
     Delete an item.
     """
