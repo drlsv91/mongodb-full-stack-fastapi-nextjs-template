@@ -17,10 +17,11 @@ wait_seconds = 1
     after=after_log(logger, logging.WARN),
 )
 async def init() -> None:
-    with AsyncIOMotorClient(settings.MONGODB_URI) as client:
 
-        # Ping the database to check if connection is working
-        await client.admin.command("ping")
+    client = AsyncIOMotorClient(settings.MONGODB_URI)
+
+    # Ping the database to check if connection is working
+    await client.admin.command("ping")
 
 
 async def main() -> None:
