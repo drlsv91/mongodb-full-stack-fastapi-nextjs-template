@@ -15,10 +15,8 @@ reusable_oauth2 = OAuth2PasswordBearer(
 )
 
 
-client = AsyncIOMotorClient(settings.MONGODB_URI)
-
-
 async def get_db() -> AsyncGenerator[AsyncIOMotorClient, None]:
+    client = AsyncIOMotorClient(settings.MONGODB_URI)
 
     db = client[settings.MONGODB_DB_NAME]
     yield db
