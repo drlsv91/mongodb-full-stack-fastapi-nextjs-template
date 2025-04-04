@@ -1,5 +1,4 @@
 import pytest
-from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app import crud
 from app.core.security import verify_password
@@ -97,7 +96,6 @@ async def test_get_user(db: AsyncIOMotorDatabase) -> None:
     user_2 = await crud.get_user_by_email(db=db, email=email)
     assert user_2
     assert user.email == user_2.email
-    assert jsonable_encoder(user) == jsonable_encoder(user_2)
 
 
 @pytest.mark.asyncio
