@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from motor.motor_asyncio import AsyncIOMotorDatabase
-
 from app.core.config import settings
 from app.core.security import verify_password
 from app.crud import create_user
@@ -58,7 +57,7 @@ async def test_recovery_password(client: TestClient, db: AsyncIOMotorDatabase) -
         # First create a test user
         email = "test@example.com"
         password = random_lower_string()
-        user = await create_user(
+        await create_user(
             db=db,
             user_create=UserCreate(email=email, password=password, is_active=True),
         )
@@ -84,7 +83,7 @@ async def test_reset_password(client: TestClient, db: AsyncIOMotorDatabase) -> N
     new_password = random_lower_string()
 
     # Create test user
-    user = await create_user(
+    await create_user(
         db=db, user_create=UserCreate(email=email, password=password, is_active=True)
     )
 
