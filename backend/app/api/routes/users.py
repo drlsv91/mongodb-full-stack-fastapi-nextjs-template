@@ -149,7 +149,7 @@ async def register_user(db: DbDep, user_in: UserRegister) -> Any:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system",
         )
-    user_create = UserCreate.model_validate(user_in)
+    user_create = UserCreate.model_validate(user_in.model_dump())
     user = await crud.create_user(db=db, user_create=user_create)
     return user
 
