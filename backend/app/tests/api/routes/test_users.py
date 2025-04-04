@@ -1,4 +1,4 @@
-import uuid
+from bson import ObjectId
 import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
@@ -174,7 +174,6 @@ async def test_register_user(client: TestClient, db: AsyncIOMotorDatabase) -> No
         json={"email": username, "password": password, "full_name": full_name},
     )
     assert response.status_code == 200
-    created_user = response.json()
 
     user_db = await db.users.find_one({"email": username})
     assert user_db
@@ -211,9 +210,10 @@ def test_delete_user_not_found(
     client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
     response = client.delete(
-        f"{settings.API_V1_STR}/users/{uuid.uuid4()}",
+        f"{settings.API_V1_STR}/users/{ObjectId()}",
         headers=superuser_token_headers,
     )
+
     assert response.status_code == 404
     assert response.json()["detail"] == "User not found"
 
