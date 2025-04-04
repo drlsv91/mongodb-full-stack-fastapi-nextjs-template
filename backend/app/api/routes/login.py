@@ -73,7 +73,7 @@ async def recover_password(email: str, db: DbDep) -> Message:
         email_to=user.email, email=email, token=password_reset_token
     )
 
-    await send_email(
+    send_email(
         email_to=user.email,
         subject=email_data.subject,
         html_content=email_data.html_content,
