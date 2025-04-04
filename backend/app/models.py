@@ -1,6 +1,6 @@
 from typing import Optional, List
 from datetime import datetime
-from pydantic import EmailStr, Field, BaseModel, ConfigDict
+from pydantic import EmailStr, Field, BaseModel, ConfigDict, Field, field_serializer
 from pydantic_core import core_schema
 from bson import ObjectId
 from typing import Any
@@ -80,14 +80,27 @@ class User(UserBase):
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
-        json_encoders={ObjectId: str, datetime: lambda v: v.isoformat()},
     )
+
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, id: PyObjectId, _info):
+        return str(id)
+
+    @field_serializer("created_at", "updated_at", when_used="json")
+    def serialize_datetime(self, dt: datetime, _info):
+        return dt.isoformat()
 
 
 class UserPublic(UserBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
-    model_config = ConfigDict(populate_by_name=True, json_encoders={ObjectId: str})
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, id: PyObjectId, _info):
+        return str(id)
 
 
 class UsersPublic(BaseModel):
@@ -118,15 +131,28 @@ class Item(ItemBase):
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
-        json_encoders={ObjectId: str, datetime: lambda v: v.isoformat()},
     )
+
+    @field_serializer("id", "owner_id", when_used="json")
+    def serialize_objectid(self, obj_id: PyObjectId, _info):
+        return str(obj_id)
+
+    @field_serializer("created_at", "updated_at", when_used="json")
+    def serialize_datetime(self, dt: datetime, _info):
+        return dt.isoformat()
 
 
 class ItemPublic(ItemBase):
     id: PyObjectId = Field(..., alias="_id")
     owner_id: PyObjectId
 
-    model_config = ConfigDict(populate_by_name=True, json_encoders={ObjectId: str})
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    @field_serializer("id", "owner_id", when_used="json")
+    def serialize_objectid(self, obj_id: PyObjectId, _info):
+        return str(obj_id)
 
 
 class ItemsPublic(BaseModel):
