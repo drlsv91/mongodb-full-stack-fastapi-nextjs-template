@@ -168,7 +168,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     id: str
-    full_name: str
+    full_name: str | None = ""
     email: str
 
 

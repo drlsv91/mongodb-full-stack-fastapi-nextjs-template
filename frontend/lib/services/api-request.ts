@@ -1,7 +1,7 @@
-import { BACKEND_URL } from "../constants";
 import { getSession } from "../session";
 
 type Method = "POST" | "GET" | "PUT" | "PATCH" | "DELETE";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const apiRequest = async (url: string, method: Method = "GET", body?: Record<string, unknown>) => {
   const session = await getSession();

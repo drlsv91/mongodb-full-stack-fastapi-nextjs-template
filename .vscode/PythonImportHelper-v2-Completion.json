@@ -2752,7 +2752,7 @@
         "kind": 6,
         "importPath": "backend.app.models",
         "description": "backend.app.models",
-        "peekOfCode": "class ItemsPublic(BaseModel):\n    data: List[ItemPublic]\n    count: int\nclass Message(BaseModel):\n    message: str\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    id: str\n    full_name: str",
+        "peekOfCode": "class ItemsPublic(BaseModel):\n    data: List[ItemPublic]\n    count: int\nclass Message(BaseModel):\n    message: str\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    id: str\n    full_name: str | None = \"\"",
         "detail": "backend.app.models",
         "documentation": {}
     },
@@ -2761,7 +2761,7 @@
         "kind": 6,
         "importPath": "backend.app.models",
         "description": "backend.app.models",
-        "peekOfCode": "class Message(BaseModel):\n    message: str\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    id: str\n    full_name: str\n    email: str\nclass TokenPayload(BaseModel):\n    sub: Optional[str] = None",
+        "peekOfCode": "class Message(BaseModel):\n    message: str\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    id: str\n    full_name: str | None = \"\"\n    email: str\nclass TokenPayload(BaseModel):\n    sub: Optional[str] = None",
         "detail": "backend.app.models",
         "documentation": {}
     },
@@ -2770,7 +2770,7 @@
         "kind": 6,
         "importPath": "backend.app.models",
         "description": "backend.app.models",
-        "peekOfCode": "class Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    id: str\n    full_name: str\n    email: str\nclass TokenPayload(BaseModel):\n    sub: Optional[str] = None\nclass NewPassword(BaseModel):\n    token: str",
+        "peekOfCode": "class Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    id: str\n    full_name: str | None = \"\"\n    email: str\nclass TokenPayload(BaseModel):\n    sub: Optional[str] = None\nclass NewPassword(BaseModel):\n    token: str",
         "detail": "backend.app.models",
         "documentation": {}
     },

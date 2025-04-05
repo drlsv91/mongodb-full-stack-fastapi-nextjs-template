@@ -1,138 +1,86 @@
-# FastAPI Project - Backend
+# Mongo FastAPI Backend Project
 
-## Requirements
+## 🚀 Quick Start
 
-- [Docker](https://www.docker.com/).
-- [uv](https://docs.astral.sh/uv/) for Python package and environment management.
+### Prerequisites
 
-## Docker Compose
+- [Docker](https://www.docker.com/) (v20.10+)
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- [VS Code](https://code.visualstudio.com/) (recommended)
 
-Start the local development environment with Docker Compose following the guide in [../development.md](../development.md).
+## 🛠️ Development Setup
 
-## General Workflow
+### 1. Install Dependencies
 
-By default, the dependencies are managed with [uv](https://docs.astral.sh/uv/), go there and install it.
-
-From `./backend/` you can install all the dependencies with:
-
-```console
-$ uv sync
+```bash
+uv sync
 ```
 
-Then you can activate the virtual environment with:
+2. Activate Virtual Environment
 
-```console
-$ source .venv/bin/activate
+```bash
+source .venv/bin/activate
 ```
 
-Make sure your editor is using the correct Python virtual environment, with the interpreter at `backend/.venv/bin/python`.
+3. Configure environment variables:
+   Create a `.env` file and the following environment variables.:
 
-## VS Code
+```bash
+# Domain
+# Environment: local, staging, production
+ENVIRONMENT=local
 
-There are already configurations in place to run the backend through the VS Code debugger, so that you can use breakpoints, pause and explore variables, etc.
+PROJECT_NAME=MongoDb FastAPI Backend Project
+STACK_NAME=mongodb-fastapi-backend-project
 
-The setup is also already configured so you can run the tests through the VS Code Python tests tab.
+# Backend
+BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5173,https://localhost,https://localhost:5173,http://localhost.tiangolo.com"
 
-## Docker Compose Override
+SECRET_KEY=<your_secret_key>
+FIRST_SUPERUSER=admin@example.com
+FIRST_SUPERUSER_PASSWORD=<your_password>
 
-During development, you can change Docker Compose settings that will only affect the local development environment in the file `docker-compose.override.yml`.
+# Emails
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASSWORD=
+EMAILS_FROM_EMAIL=info@example.com
+SMTP_TLS=True
+SMTP_SSL=False
+SMTP_PORT=587
 
-The changes to that file only affect the local development environment, not the production environment. So, you can add "temporary" changes that help the development workflow.
+SENTRY_DSN=
 
-For example, the directory with the backend code is synchronized in the Docker container, copying the code you change live to the directory inside the container. That allows you to test your changes right away, without having to build the Docker image again. It should only be done during development, for production, you should build the Docker image with a recent version of the backend code. But during development, it allows you to iterate very fast.
+# Configure these with your own Docker registry images
+MONGODB_URI=<your_mongodb_uri>
+MONGODB_DB_NAME=<your_db_name>
 
-There is also a command override that runs `fastapi run --reload` instead of the default `fastapi run`. It starts a single server process (instead of multiple, as would be for production) and reloads the process whenever the code changes. Have in mind that if you have a syntax error and save the Python file, it will break and exit, and the container will stop. After that, you can restart the container by fixing the error and running again:
-
-```console
-$ docker compose watch
 ```
 
-There is also a commented out `command` override, you can uncomment it and comment the default one. It makes the backend container run a process that does "nothing", but keeps the container alive. That allows you to get inside your running container and execute commands inside, for example a Python interpreter to test installed dependencies, or start the development server that reloads when it detects changes.
+4. Start Development Environment
 
-To get inside the container with a `bash` session you can start the stack with:
-
-```console
-$ docker compose watch
+```bash
+docker compose watch
 ```
 
-and then in another terminal, `exec` inside the running container:
+🏃 Running the Application Locally
 
-```console
-$ docker compose exec backend bash
-```
+Start the development server:
 
-You should see an output like:
-
-```console
-root@7f2607af31c3:/app#
-```
-
-that means that you are in a `bash` session inside your container, as a `root` user, under the `/app` directory, this directory has another directory called "app" inside, that's where your code lives inside the container: `/app/app`.
-
-There you can use the `fastapi run --reload` command to run the debug live reloading server.
-
-```console
+```bash
 $ fastapi run --reload app/main.py
 ```
-
-...it will look like:
-
-```console
-root@7f2607af31c3:/app# fastapi run --reload app/main.py
-```
-
-and then hit enter. That runs the live reloading server that auto reloads when it detects code changes.
-
-Nevertheless, if it doesn't detect a change but a syntax error, it will just stop with an error. But as the container is still alive and you are in a Bash session, you can quickly restart it after fixing the error, running the same command ("up arrow" and "Enter").
-
-...this previous detail is what makes it useful to have the container alive doing nothing and then, in a Bash session, make it run the live reload server.
 
 ## Backend tests
 
 To test the backend run:
 
-```console
-$ bash ./scripts/test.sh
+```bash
+pytest
 ```
 
-The tests run with Pytest, modify and add tests to `./backend/app/tests/`.
-
-If you use GitHub Actions the tests will run automatically.
-
-### Test running stack
-
-If your stack is already up and you just want to run the tests, you can use:
+in watch mode:
 
 ```bash
-docker compose exec backend bash scripts/tests-start.sh
+ptw -- -s
 ```
-
-That `/app/scripts/tests-start.sh` script just calls `pytest` after making sure that the rest of the stack is running. If you need to pass extra arguments to `pytest`, you can pass them to that command and they will be forwarded.
-
-For example, to stop on first error:
-
-```bash
-docker compose exec backend bash scripts/tests-start.sh -x
-```
-
-### Test Coverage
-
-When the tests are run, a file `htmlcov/index.html` is generated, you can open it in your browser to see the coverage of the tests.
-
-- Start an interactive session in the backend container:
-
-```console
-$ docker compose exec backend bash
-```
-
-- After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
-
-and comment the line in the file `scripts/prestart.sh` that contains:
-
-## Email Templates
-
-The email templates are in `./backend/app/email-templates/`. Here, there are two directories: `build` and `src`. The `src` directory contains the source files that are used to build the final email templates. The `build` directory contains the final email templates that are used by the application.
-
-Before continuing, ensure you have the [MJML extension](https://marketplace.visualstudio.com/items?itemName=attilabuti.vscode-mjml) installed in your VS Code.
-
-Once you have the MJML extension installed, you can create a new email template in the `src` directory. After creating the new email template and with the `.mjml` file open in your editor, open the command palette with `Ctrl+Shift+P` and search for `MJML: Export to HTML`. This will convert the `.mjml` file to a `.html` file and now you can save it in the build directory.
