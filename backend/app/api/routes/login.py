@@ -43,7 +43,10 @@ async def login_access_token(
     return Token(
         access_token=security.create_access_token(
             str(user.id), expires_delta=access_token_expires
-        )
+        ),
+        id=str(user.id),
+        full_name=user.full_name,
+        email=user.email,
     )
 
 

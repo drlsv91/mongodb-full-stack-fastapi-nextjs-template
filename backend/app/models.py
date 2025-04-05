@@ -167,6 +167,9 @@ class Message(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    id: str
+    full_name: str
+    email: str
 
 
 class TokenPayload(BaseModel):
