@@ -1,22 +1,21 @@
 "use client";
 
 import ActionHeader from "@/components/common/ActionHeader";
-import { CreateItemModal } from "@/components/items/CreateItem";
+import { CreateUserModal } from "@/components/users/CreateUserModal";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-interface ItemsListHeaderProps {
+interface UserListHeaderProps {
   onSearch?: (query: string) => void;
   title?: string;
-  initialSearchQuery?: string;
   description?: string;
 }
 
-export function ItemsListHeader({
+export function UserListHeader({
   onSearch,
-  title = "Items",
-  description = "Manage your items",
-}: Readonly<ItemsListHeaderProps>) {
+  title = "Users",
+  description = "Manage user accounts",
+}: Readonly<UserListHeaderProps>) {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -50,10 +49,11 @@ export function ItemsListHeader({
         onKeyDown={handleKeyDown}
         onClearSearch={handleClearSearch}
         onSetModalOpen={setIsCreateModalOpen}
+        addButtonText="Add User"
       />
 
-      {/* Create Item Modal */}
-      <CreateItemModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      {/* Create User Modal */}
+      <CreateUserModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
     </div>
   );
 }

@@ -1,9 +1,10 @@
-import React, { PropsWithChildren } from "react";
+import { cn } from "@/lib/utils";
+import React from "react";
 
-const ErrorMessage = ({ children }: PropsWithChildren) => {
+const ErrorMessage = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
   if (!children) return null;
 
-  return <p className="text-red-500">{children}</p>;
+  return <p className={cn("text-red-500 text-xs", className)}>{children}</p>;
 };
 
 export default ErrorMessage;

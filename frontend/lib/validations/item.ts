@@ -10,19 +10,3 @@ export const itemSchema = z.object({
 });
 
 export type ItemFormValues = z.infer<typeof itemSchema>;
-
-export const userSchema = z.object({
-  id: z.string(),
-  email: z.string().email(),
-  name: z.string().optional(),
-});
-
-export type User = z.infer<typeof userSchema>;
-
-export const authResponseSchema = z.object({
-  message: z.string(),
-  token: z.string(),
-  user: userSchema,
-});
-
-export type AuthResponse = z.infer<typeof authResponseSchema>;

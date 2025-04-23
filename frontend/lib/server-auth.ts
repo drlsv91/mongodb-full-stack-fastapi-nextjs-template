@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "./session";
+import axiosInstance from "./axios";
+import { User } from "@/types/user";
 
 /**
  * Check if user is authenticated in server components
@@ -16,7 +18,10 @@ export async function requireAuth(requiredRole?: "admin" | "user") {
     redirect("/unauthorized");
   }
 
-  return session.user;
+  const response = await axiosInstance.get("/users/me", {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  return response.data as User;
 }
 
 /**
@@ -25,7 +30,14 @@ export async function requireAuth(requiredRole?: "admin" | "user") {
  */
 export async function getCurrentUser() {
   const session = await getSession();
-  return session?.user || null;
+  if (!session?.user) {
+    throw new Error("No user session");
+  }
+
+  const response = await axiosInstance.get("/users/me", {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  return response.data as User;
 }
 
 /**

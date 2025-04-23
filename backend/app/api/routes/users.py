@@ -32,13 +32,38 @@ router = APIRouter(prefix="/users", tags=["users"])
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UsersPublic,
 )
-async def read_users(db: DbDep, skip: int = 0, limit: int = 100) -> Any:
+async def read_users(db: DbDep, skip: int = 0, limit: int = 100, q: str = None) -> Any:
     """
     Retrieve users.
     """
-    count = await db.users.count_documents({})
-    users_cursor = db.users.find({}).skip(skip).limit(limit)
 
+    # Add search query if provided
+    base_filter = {}
+    if q:
+
+        search_filter = {
+            "$or": [
+                {
+                    "full_name": {"$regex": q, "$options": "i"}
+                },  # Case-insensitive search in name
+                {
+                    "email": {"$regex": q, "$options": "i"}
+                },  # Case-insensitive search in email
+            ]
+        }
+
+        # Combine base filter with search filter
+        filter_query = {"$and": [base_filter, search_filter]}
+    else:
+        filter_query = base_filter
+
+    # Get count of matching documents
+    count = await db.users.count_documents(filter_query)
+
+    # Find matching items with pagination
+    users_cursor = db.users.find(filter_query).skip(skip).limit(limit)
+
+    # Transform to Pydantic models
     users = [UserPublic(**user) async for user in users_cursor]
 
     return UsersPublic(data=users, count=count)

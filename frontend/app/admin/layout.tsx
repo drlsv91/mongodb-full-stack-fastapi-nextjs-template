@@ -5,10 +5,12 @@ import { requireAuth } from "@/lib/server-auth";
 
 const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
   const sessionUser = await requireAuth();
+
   const user = {
-    name: sessionUser.name!,
+    name: sessionUser.full_name,
     email: sessionUser.email,
     avatar: "/avatars/shadcn.jpg",
+    isSuperUser: sessionUser.is_superuser,
   };
 
   return (
@@ -16,7 +18,7 @@ const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
       <AppSidebar variant="inset" user={user} />
 
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader user={user} />
         <main className="px-10">{children}</main>
       </SidebarInset>
     </SidebarProvider>

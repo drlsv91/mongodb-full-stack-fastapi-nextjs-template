@@ -7,10 +7,10 @@ import { useItems } from "@/hooks/use-item-query";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { DeleteConfirmationDialog } from "@/components/items/DeleteItem";
 import LoadingItemsSkeleton from "@/components/items/LoadItemsSkeleton";
 import { Item } from "@/types/item";
 import { ItemsListHeader } from "./ItemHeader";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 
 export function ItemsList() {
   const { isLoading, itemData, error, deleteItem, isDeleting, handleSearch } = useItems();
@@ -113,7 +113,7 @@ export function ItemsList() {
             isOpen={isDeleteModalOpen}
             onClose={handleCancelDelete}
             onConfirm={handleConfirmDelete}
-            item={itemToDelete}
+            title={itemToDelete?.title}
             isDeleting={isDeleting}
           />
         </div>

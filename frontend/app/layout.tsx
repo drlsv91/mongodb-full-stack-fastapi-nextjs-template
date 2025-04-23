@@ -1,4 +1,3 @@
-import { ModeToggle } from "@/components/global/mode-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
 import QueryClientProvider from "@/providers/QueryClientProvider";
 import type { Metadata } from "next";
@@ -32,12 +31,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <QueryClientProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <main className="relative">
-              {children}
-              <div className="absolute top-2 right-2">
-                <ModeToggle />
-              </div>
-            </main>
+            <main className="relative">{children}</main>
             <Toaster />
           </ThemeProvider>
         </QueryClientProvider>
