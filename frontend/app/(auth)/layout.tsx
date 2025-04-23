@@ -4,6 +4,7 @@ import React from "react";
 
 const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await getSession();
+  console.log("session =>", session);
   if (session?.user) {
     redirect("/admin");
   }

@@ -1,12 +1,13 @@
+"use server";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export type SessionUser = {
   id?: string;
   name?: string;
   avatar?: string;
   email: string;
+  role?: string;
 };
 
 export type Session = {
@@ -51,10 +52,11 @@ export async function getSession() {
     return payload as Session;
   } catch (err) {
     console.error("Failed to verify the session: ", err);
-    redirect("/auth/sginin");
+
+    return null;
   }
 }
 
 export async function deleteSession() {
-  await (await cookies()).delete("session");
+  (await cookies()).delete("session");
 }

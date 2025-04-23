@@ -1,13 +1,12 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { useActionState } from "react";
 import { signIn } from "@/lib/actions/auth";
+import { cn } from "@/lib/utils";
+import { useActionState } from "react";
 import SubmitButton from "./SubmitButton";
+import { Alert, AlertDescription } from "./ui/alert";
 
 export function LoginForm({ className, ...props }: Readonly<React.ComponentPropsWithoutRef<"div">>) {
   const [state, action] = useActionState(signIn, undefined);
@@ -16,9 +15,13 @@ export function LoginForm({ className, ...props }: Readonly<React.ComponentProps
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
+          {state?.message && (
+            <Alert variant="destructive" className="bg-red-50 rounded-xs py-1.5">
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
+          )}
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>Enter your email below to login to your account</CardDescription>
-          {state?.message && <p className="text-red-500 text-sm mt-2">{state.message}</p>}
         </CardHeader>
         <CardContent>
           <form action={action}>
@@ -32,38 +35,26 @@ export function LoginForm({ className, ...props }: Readonly<React.ComponentProps
                   placeholder="m@example.com"
                   required
                   defaultValue={state?.data?.email ?? ""}
-                  key={`email-${state?.data?.email ?? ""}`} // Force re-render on state change
+                  key={`email-${state?.data?.email ?? ""}`}
                 />
-                {state?.errors?.email && <p className="text-red-500 text-sm">{state.errors.email}</p>}
+                {state?.errors?.email && <p className="text-sm font-medium text-destructive">{state.errors.email}</p>}
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                    Forgot your password?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Password</Label>
+
                 <Input
                   id="password"
-                  name="password"
                   type="password"
-                  required
+                  name="password"
                   defaultValue={state?.data?.password ?? ""}
-                  key={`password-${state?.data?.password ?? ""}`} // Force re-render on state change
+                  key={`password-${state?.data?.password ?? ""}`}
                 />
-                {state?.errors?.password && <p className="text-red-500 text-sm">{state.errors.password}</p>}
+                {state?.errors?.password && (
+                  <p className="text-sm font-medium text-destructive">{state.errors.password}</p>
+                )}
               </div>
 
               <SubmitButton>Login</SubmitButton>
-              <Button variant="outline" className="w-full" type="button">
-                Login with Google
-              </Button>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link href="/sign-up" className="underline underline-offset-4">
-                Sign up
-              </Link>
             </div>
           </form>
         </CardContent>
