@@ -38,7 +38,7 @@
 
 [![API docs](img/settings.png)](https://github.com/drlsv91/pymongo-orm-fastapi-next-template)
 
-### Dashboard - Dark Mode
+### Dark Mode
 
 [![API docs](img/dark-homepage.png)](https://github.com/drlsv91/pymongo-orm-fastapi-next-template)
 
