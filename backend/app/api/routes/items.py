@@ -21,21 +21,47 @@ NOT_ENOUGH_PERMISSIONS = "Not enough permissions"
 
 @router.get("/", response_model=ItemsPublic)
 async def read_items(
-    db: DbDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    db: DbDep, current_user: CurrentUser, skip: int = 0, limit: int = 100, q: str = None
 ) -> Any:
     """
-    Retrieve items.
-    """
-    if current_user.is_superuser:
-        count = await db.items.count_documents({})
-        items_cursor = db.items.find({}).skip(skip).limit(limit)
-    else:
-        count = await db.items.count_documents({"owner_id": current_user.id})
-        items_cursor = (
-            db.items.find({"owner_id": current_user.id}).skip(skip).limit(limit)
-        )
+    Retrieve items with optional search filtering.
 
+    - **q**: Optional search query for filtering items by title or description
+    """
+    # Base filter depending on user permissions
+    if current_user.is_superuser:
+        base_filter = {}
+    else:
+        base_filter = {"owner_id": current_user.id}
+
+    # Add search query if provided
+    if q:
+        # Create a text search filter for title and description fields
+        search_filter = {
+            "$or": [
+                {
+                    "title": {"$regex": q, "$options": "i"}
+                },  # Case-insensitive search in title
+                {
+                    "description": {"$regex": q, "$options": "i"}
+                },  # Case-insensitive search in description
+            ]
+        }
+
+        # Combine base filter with search filter
+        filter_query = {"$and": [base_filter, search_filter]}
+    else:
+        filter_query = base_filter
+
+    # Get count of matching documents
+    count = await db.items.count_documents(filter_query)
+
+    # Find matching items with pagination
+    items_cursor = db.items.find(filter_query).skip(skip).limit(limit)
+
+    # Transform to Pydantic models
     items = [ItemPublic(**item) async for item in items_cursor]
+
     return ItemsPublic(data=items, count=count)
 
 
