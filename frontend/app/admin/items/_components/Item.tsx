@@ -12,8 +12,8 @@ import LoadingItemsSkeleton from "@/components/items/LoadItemsSkeleton";
 import { Item } from "@/types/item";
 import { ItemsListHeader } from "./ItemHeader";
 
-export function ItemsTable() {
-  const { isLoading, itemData, error, isUpdating, deleteItem, isDeleting, handleSearch } = useItems();
+export function ItemsList() {
+  const { isLoading, itemData, error, deleteItem, isDeleting, handleSearch } = useItems();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Item | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -21,9 +21,9 @@ export function ItemsTable() {
 
   const items = itemData?.data ?? [];
 
-  if (error) return <p>Error occurred..</p>;
+  if (error) return <NoData title="Failed" message="An Error Occurred, please retry" icon="error" />;
 
-  if (isLoading || isUpdating) {
+  if (isLoading) {
     return <LoadingItemsSkeleton />;
   }
 

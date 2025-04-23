@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 
-import { ItemsTable } from "./_components/Item";
+import { ItemsList } from "./_components/Item";
 
 const ItemsPage = () => {
   return (
     <div className="mt-10">
-      <ItemsTable />
+      <ItemsList />
     </div>
   );
 };
