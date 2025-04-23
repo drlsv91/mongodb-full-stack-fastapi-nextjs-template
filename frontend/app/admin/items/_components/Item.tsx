@@ -7,7 +7,7 @@ import { useItems } from "@/hooks/use-item-query";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import LoadingItemsSkeleton from "@/components/items/LoadItemsSkeleton";
+import LoadingTableSkeleton from "@/components/LoadTableSkeleton";
 import { Item } from "@/types/item";
 import { ItemsListHeader } from "./ItemHeader";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
@@ -24,7 +24,7 @@ export function ItemsList() {
   if (error) return <NoData title="Failed" message="An Error Occurred, please retry" icon="error" />;
 
   if (isLoading) {
-    return <LoadingItemsSkeleton />;
+    return <LoadingTableSkeleton />;
   }
 
   const handleDeleteClick = (item: Item) => {

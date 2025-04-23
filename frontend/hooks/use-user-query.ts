@@ -4,7 +4,7 @@ import axiosInstance from "@/lib/axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
-import { CreateUserData, User, UserData } from "@/types/user";
+import { CreateUserData, UpdateMePassword, User, UserData } from "@/types/user";
 
 const USER_URL = "/users";
 const KEY = "users";
@@ -76,7 +76,32 @@ export function useUsers() {
       router.push(USER_PATH);
     },
     onError: (error) => {
-      toast.error("Failed to update item");
+      toast.error("Failed to update user");
+      console.error("Update error:", error);
+    },
+  });
+  // Update user profile mutation
+  const updateUserProfileMutation = useMutation({
+    mutationFn: (data: Partial<CreateUserData>) => axiosInstance.patch(`/users/me`, data).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [KEY] });
+      toast.success("Profile updated successfully");
+      router.push("/admin/settings?tab=profile");
+    },
+    onError: (error) => {
+      toast.error("Failed to update user");
+      console.error("Update error:", error);
+    },
+  });
+  const updateProfilePasswordMutation = useMutation({
+    mutationFn: (data: UpdateMePassword) => axiosInstance.patch(`/users/me/password`, data).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [KEY] });
+      toast.success("User password successfully");
+      router.push("/admin/settings?tab=password");
+    },
+    onError: (error) => {
+      toast.error("Failed to update user");
       console.error("Update error:", error);
     },
   });
@@ -122,6 +147,12 @@ export function useUsers() {
     isUpdating: updateUserMutation.isPending,
     deleteUser: deleteUserMutation.mutateAsync,
     isDeleting: deleteUserMutation.isPending,
+
+    // Profile functionality
+    updateUserProfile: updateUserProfileMutation.mutateAsync,
+    isUpdatingProfile: updateUserProfileMutation.isPending,
+    updateMePassword: updateProfilePasswordMutation.mutateAsync,
+    isUpdatingPassword: updateProfilePasswordMutation.isPending,
 
     // Search functionality
     handleSearch,

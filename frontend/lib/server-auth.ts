@@ -30,14 +30,8 @@ export async function requireAuth(requiredRole?: "admin" | "user") {
  */
 export async function getCurrentUser() {
   const session = await getSession();
-  if (!session?.user) {
-    throw new Error("No user session");
-  }
 
-  const response = await axiosInstance.get("/users/me", {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  return response.data as User;
+  return session?.user || null;
 }
 
 /**

@@ -1,10 +1,10 @@
 "use client";
-
-import Link from "next/link";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, Users, Package, ArrowRight, Database, LogIn } from "lucide-react";
+import axiosInstance from "@/lib/axios";
+import { ArrowRight, Database, LogIn, Package, ShieldCheck, Users } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function Home() {
   const [apiStatus, setApiStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -12,14 +12,15 @@ export default function Home() {
   const checkApiStatus = async () => {
     setApiStatus("loading");
     try {
-      const response = await fetch("/api/health");
-      const data = await response.json();
-      if (data.status === "healthy") {
+      const response = await axiosInstance.get("/utils/health-check");
+      const data = response.data;
+      if (data) {
         setApiStatus("success");
       } else {
         setApiStatus("error");
       }
     } catch (error) {
+      console.log(error);
       setApiStatus("error");
     }
   };

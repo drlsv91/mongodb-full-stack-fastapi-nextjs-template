@@ -63,18 +63,12 @@ export function EditUserModal({ user, isOpen, onClose }: Readonly<EditUserModalP
   const onSubmit = handleSubmit(async (data) => {
     if (!user) return;
 
-    try {
-      await updateUser({
-        id: user._id,
-        data,
-      });
+    await updateUser({
+      id: user._id,
+      data,
+    });
 
-      toast.success("User updated successfully");
-      handleClose();
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to update user");
-    }
+    handleClose();
   });
 
   // If modal is not open, don't render anything

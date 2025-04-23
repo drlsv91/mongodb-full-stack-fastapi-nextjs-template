@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-const LoadingItemsSkeleton = () => {
+const LoadingTableSkeleton = () => {
   const items = [1, 2, 3, 4, 5];
 
   return (
@@ -18,15 +18,15 @@ const LoadingItemsSkeleton = () => {
           {items.map((item) => (
             <TableRow key={item}>
               <TableCell className="font-medium">
-                <Skeleton className="h-4" />
+                <Skeleton className="h-8" />
               </TableCell>
               <TableCell>
-                <Skeleton className="h-4" />
+                <Skeleton className="h-8" />
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Skeleton className="h-4 w-8" />
-                  <Skeleton className="h-4 w-8" />
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-8" />
                 </div>
               </TableCell>
             </TableRow>
@@ -37,4 +37,4 @@ const LoadingItemsSkeleton = () => {
   );
 };
 
-export default LoadingItemsSkeleton;
+export default LoadingTableSkeleton;

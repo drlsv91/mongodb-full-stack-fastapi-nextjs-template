@@ -1,7 +1,7 @@
 "use client";
 
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import LoadingItemsSkeleton from "@/components/items/LoadItemsSkeleton";
+import LoadingTableSkeleton from "@/components/LoadTableSkeleton";
 import { NoData } from "@/components/no-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export function UserList({ sessionUser }: Readonly<{ sessionUser: User }>) {
   if (error) return <NoData title="Failed" message="An Error Occurred, please retry" icon="error" />;
 
   if (isLoading) {
-    return <LoadingItemsSkeleton />;
+    return <LoadingTableSkeleton />;
   }
 
   const handleDeleteClick = (user: User) => {
