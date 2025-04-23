@@ -54,13 +54,15 @@ async def read_items(
         filter_query = base_filter
 
     # Get count of matching documents
-    count = await db.items.count_documents(filter_query)
+    count = await Item.count(db=db, query=filter_query)
 
     # Find matching items with pagination
-    items_cursor = db.items.find(filter_query).skip(skip).limit(limit)
+    items_cursor = await Item.find(
+        db=db, query=filter_query, skip=skip, limit=limit, sort=[("created_at", -1)]
+    )
 
     # Transform to Pydantic models
-    items = [ItemPublic(**item) async for item in items_cursor]
+    items = [ItemPublic(**item.model_dump()) for item in items_cursor]
 
     return ItemsPublic(data=items, count=count)
 
@@ -70,17 +72,16 @@ async def read_item(db: DbDep, current_user: CurrentUser, id: PyObjectId) -> Any
     """
     Get item by ID.
     """
-    item = await db.items.find_one({"_id": id})
+    item = await Item.find_one(db=db, query={"_id": id})
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=ITEM_NOT_FOUND
         )
-    item_obj = Item(**item)
-    if not current_user.is_superuser and (item_obj.owner_id != current_user.id):
+    if not current_user.is_superuser and (item.owner_id != current_user.id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=NOT_ENOUGH_PERMISSIONS
         )
-    return item_obj
+    return item
 
 
 @router.post("/", response_model=ItemPublic)
@@ -92,9 +93,10 @@ async def create_item(
     """
     item_data = item_in.model_dump()
     item_data["owner_id"] = current_user.id
-    result = await db.items.insert_one(item_data)
-    created_item = await db.items.find_one({"_id": result.inserted_id})
-    return Item(**created_item)
+    create_item = await Item(**item_data).save(db)
+
+    created_item = await Item.find_one(db=db, query={"_id": create_item.id})
+    return Item(**created_item.model_dump())
 
 
 @router.put("/{id}", response_model=ItemPublic)
@@ -108,21 +110,22 @@ async def update_item(
     """
     Update an item.
     """
-    item = await db.items.find_one({"_id": id})
+    item = await Item.find_one(db=db, query={"_id": id})
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=ITEM_NOT_FOUND
         )
-    item_obj = Item(**item)
-    if not current_user.is_superuser and (item_obj.owner_id != current_user.id):
+
+    if not current_user.is_superuser and (item.owner_id != current_user.id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=NOT_ENOUGH_PERMISSIONS
         )
 
     update_data = item_in.model_dump(exclude_unset=True)
-    await db.items.update_one({"_id": id}, {"$set": update_data})
-    updated_item = await db.items.find_one({"_id": id})
-    return Item(**updated_item)
+
+    await Item.update_many(db=db, query={"_id": id}, update={"$set": update_data})
+
+    return await Item.find_one(db=db, query={"_id": id})
 
 
 @router.delete("/{id}")
@@ -130,16 +133,16 @@ async def delete_item(db: DbDep, current_user: CurrentUser, id: PyObjectId) -> M
     """
     Delete an item.
     """
-    item = await db.items.find_one({"_id": id})
+    item = await Item.find_one(db=db, query={"_id": id})
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
         )
-    item_obj = Item(**item)
-    if not current_user.is_superuser and (item_obj.owner_id != current_user.id):
+
+    if not current_user.is_superuser and (item.owner_id != current_user.id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough permissions"
         )
 
-    await db.items.delete_one({"_id": id})
+    await item.delete(db)
     return Message(message="Item deleted successfully")

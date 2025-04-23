@@ -3,11 +3,12 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pydantic import ValidationError
 from app.core import security
 from app.core.config import settings
 from app.models import TokenPayload, User, PyObjectId
+from pymongo_orm import AsyncMongoConnection
 
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -15,10 +16,10 @@ reusable_oauth2 = OAuth2PasswordBearer(
 )
 
 
-async def get_db() -> AsyncGenerator[AsyncIOMotorClient, None]:
-    client = AsyncIOMotorClient(settings.MONGODB_URI)
+async def get_db() -> AsyncGenerator[AsyncIOMotorDatabase, None]:
+    client = AsyncMongoConnection(settings.MONGODB_URI)
 
-    db = client[settings.MONGODB_DB_NAME]
+    db = client.get_db(db_name=settings.MONGODB_DB_NAME)
     yield db
 
 
@@ -39,19 +40,18 @@ async def get_current_user(db: DbDep, token: TokenDep) -> User:
         )
 
     user_id = PyObjectId.validate(token_data.sub)
-    user_data = await db.users.find_one({"_id": user_id})
-    user_data["_id"] = str(user_data["_id"])
+    user_data = await User.find_one(db=db, query={"_id": user_id})
+
     if not user_data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    user = User(**user_data)
-    if not user.is_active:
+    if not user_data.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
-    return user
+    return user_data
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]

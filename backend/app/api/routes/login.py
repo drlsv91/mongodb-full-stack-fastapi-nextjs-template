@@ -29,6 +29,7 @@ async def login_access_token(
     user = await crud.authenticate(
         db=db, email=form_data.username, password=form_data.password
     )
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -106,10 +107,8 @@ async def reset_password(db: DbDep, body: NewPassword) -> Message:
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
 
-    hashed_password = get_password_hash(password=body.new_password)
-    await db.users.update_one(
-        {"_id": user.id}, {"$set": {"hashed_password": hashed_password}}
-    )
+    user.hashed_password = get_password_hash(password=body.new_password)
+    await user.save(db)
 
     return Message(message="Password updated successfully")
 

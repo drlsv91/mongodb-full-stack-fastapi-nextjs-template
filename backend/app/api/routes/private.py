@@ -24,14 +24,10 @@ async def create_user(user_in: PrivateUserCreate, db: DbDep) -> Any:
     Create a new user.
     """
 
-    user = User(
+    user = await User(
         email=user_in.email,
         full_name=user_in.full_name,
         hashed_password=get_password_hash(user_in.password),
-    )
+    ).save(db)
 
-    result = await db.users.insert_one(user.model_dump())
-
-    created_user = await db.users.find_one({"_id": result.inserted_id})
-
-    return UserPublic(**created_user)
+    return user

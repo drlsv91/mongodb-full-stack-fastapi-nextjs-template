@@ -14,18 +14,8 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     if (typeof document !== "undefined") {
-      console.log("COOKIES=>", document.cookie);
-
-      const cookies = document.cookie.split(";").reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split("=");
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-
-      console.log("SESSION cookies =>", cookies);
-
       const session = await getSession();
-      console.log("SESSION jwt => ", session);
+
       const token = session?.accessToken;
 
       if (token) {
@@ -46,8 +36,6 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      console.log("Response error:", error.response.status, error.response.data);
-
       if (error.response.status === 401 && typeof window !== "undefined") {
         if (!window.location.pathname.includes("/sign-in")) {
           window.location.href = "/sign-in";

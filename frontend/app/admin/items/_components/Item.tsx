@@ -36,7 +36,7 @@ export function ItemsList() {
     if (!itemToDelete) return;
 
     try {
-      await deleteItem(itemToDelete._id);
+      await deleteItem(itemToDelete.id);
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
     } catch (error) {
@@ -64,7 +64,7 @@ export function ItemsList() {
             </TableHeader>
             <TableBody>
               {items.map((item) => (
-                <TableRow key={item._id}>
+                <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.title}</TableCell>
                   <TableCell>
                     <p className="line-clamp-2">{item.description}</p>

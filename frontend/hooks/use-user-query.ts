@@ -120,16 +120,16 @@ export function useUsers() {
   });
 
   const handleViewUser = (user: User) => {
-    router.push(`${USER_PATH}/${user._id}`);
+    router.push(`${USER_PATH}/${user.id}`);
   };
 
   const handleEditUser = (user: User) => {
-    router.push(`${USER_PATH}/${user._id}/edit`);
+    router.push(`${USER_PATH}/${user.id}/edit`);
   };
 
   const handleDeleteUser = async (user: User) => {
     if (confirm("Are you sure you want to delete this user?")) {
-      await deleteUserMutation.mutateAsync(user._id);
+      await deleteUserMutation.mutateAsync(user.id);
     }
   };
 

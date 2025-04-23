@@ -41,7 +41,7 @@ export function EditItemModal({ item, isOpen, onClose }: Readonly<EditItemModalP
   const onSubmit = handleSubmit(async (data) => {
     try {
       await updateItem({
-        id: item!._id,
+        id: item!.id,
         data,
       });
 

@@ -11,8 +11,6 @@ const UsersPage = async () => {
   );
 };
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "Next-Starter - Users List",
   description: "View all users",

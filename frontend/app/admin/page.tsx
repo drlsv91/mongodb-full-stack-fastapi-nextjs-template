@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/session";
+import { Metadata } from "next";
 
-export default async function Admin() {
+async function AdminPage() {
   const session = await getSession();
   return (
     <div className="flex flex-1 flex-col">
@@ -15,3 +16,9 @@ export default async function Admin() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Next-Starter - Dashboard",
+  description: "Admin dashboard",
+};
+export default AdminPage;

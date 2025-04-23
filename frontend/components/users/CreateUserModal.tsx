@@ -4,7 +4,6 @@ import { useZodForm } from "@/hooks/use-zod-form";
 import { userCreateSchema } from "@/lib/validations/user";
 import clsx from "clsx";
 import { useState } from "react";
-import { toast } from "sonner";
 import ErrorMessage from "../error-message";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -44,7 +43,6 @@ export function CreateUserModal({ isOpen, onClose }: Readonly<CreateUserModalPro
   const isActive = watch("is_active");
   const isSuperuser = watch("is_superuser");
 
-  // Create a wrapped onClose function that resets the form
   const handleClose = () => {
     // Reset form data
     reset({
@@ -54,30 +52,24 @@ export function CreateUserModal({ isOpen, onClose }: Readonly<CreateUserModalPro
       is_active: true,
       is_superuser: false,
     });
-    // Reset password visibility
+
     setShowPassword(false);
-    // Call the original onClose function
+
     onClose();
   };
 
   const onSubmit = handleSubmit(async (data) => {
-    try {
-      await createUser({
-        email: data.email,
-        full_name: data.full_name,
-        is_active: !!data.is_active,
-        is_superuser: data.is_superuser,
-        password: data.password,
-      });
-      toast.success("User created successfully");
-      handleClose();
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to create user");
-    }
+    await createUser({
+      email: data.email,
+      full_name: data.full_name,
+      is_active: !!data.is_active,
+      is_superuser: data.is_superuser,
+      password: data.password,
+    });
+
+    handleClose();
   });
 
-  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

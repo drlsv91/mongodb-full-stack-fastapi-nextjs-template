@@ -1,9 +1,11 @@
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import EmailStr, Field, BaseModel, ConfigDict, Field, field_serializer
 from pydantic_core import core_schema
 from bson import ObjectId
 from typing import Any
+from pymongo_orm import AsyncMongoModel
+from pymongo import ASCENDING, DESCENDING
 
 
 class PyObjectId:
@@ -36,11 +38,40 @@ class PyObjectId:
         return ObjectId(value)
 
 
-class UserBase(BaseModel):
+class UserBase(AsyncMongoModel):
+    __collection__ = "users"
+    __indexes__ = [
+        {"fields": [("email", ASCENDING)], "unique": True, "background": True},
+        {
+            "fields": [("full_name", ASCENDING), ("created_at", DESCENDING)],
+            "background": True,
+        },
+    ]
+
+    __write_concern__ = {"w": "majority", "j": True}
+
     email: EmailStr = Field(..., json_schema_extra={"unique": True}, max_length=255)
     is_active: bool = True
     is_superuser: bool = False
     full_name: Optional[str] = Field(default=None, max_length=255)
+    last_login: Optional[datetime] = None
+
+    def before_save(self):
+        """Hook that runs before saving."""
+        self.full_name = self.full_name.strip()
+        self.email = self.email.lower()
+
+    _pre_save_hooks = [before_save]
+
+    async def update_last_login(self, *, db):
+        """Update the last login timestamp."""
+        self.last_login = datetime.now(timezone.utc)
+        await self.save(db)
+
+    @classmethod
+    async def find_by_email(cls, *, db, email: str):
+        """Find a user by email (case-insensitive)."""
+        return await cls.find_one(db, {"email": email.lower()})
 
 
 class UserCreate(UserBase):
@@ -72,7 +103,7 @@ class UpdatePassword(BaseModel):
 
 
 class User(UserBase):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+
     hashed_password: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -82,25 +113,12 @@ class User(UserBase):
         arbitrary_types_allowed=True,
     )
 
-    @field_serializer("id", when_used="json")
-    def serialize_id(self, id: PyObjectId, _info):
-        return str(id)
-
-    @field_serializer("created_at", "updated_at", when_used="json")
-    def serialize_datetime(self, dt: datetime, _info):
-        return dt.isoformat()
-
 
 class UserPublic(UserBase):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     model_config = ConfigDict(
         populate_by_name=True,
     )
-
-    @field_serializer("id", when_used="json")
-    def serialize_id(self, id: PyObjectId, _info):
-        return str(id)
 
 
 class UsersPublic(BaseModel):
@@ -108,7 +126,17 @@ class UsersPublic(BaseModel):
     count: int
 
 
-class ItemBase(BaseModel):
+class ItemBase(AsyncMongoModel):
+    __collection__ = "items"
+    __indexes__ = [
+        {
+            "fields": [("title", ASCENDING), ("created_at", DESCENDING)],
+            "background": True,
+        },
+    ]
+
+    __write_concern__ = {"w": "majority", "j": True}
+
     title: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = Field(default=None, max_length=255)
 
@@ -123,36 +151,18 @@ class ItemUpdate(ItemBase):
 
 
 class Item(ItemBase):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     owner_id: PyObjectId = Field(...)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-    )
-
-    @field_serializer("id", "owner_id", when_used="json")
-    def serialize_objectid(self, obj_id: PyObjectId, _info):
-        return str(obj_id)
-
-    @field_serializer("created_at", "updated_at", when_used="json")
-    def serialize_datetime(self, dt: datetime, _info):
-        return dt.isoformat()
-
 
 class ItemPublic(ItemBase):
-    id: PyObjectId = Field(..., alias="_id")
+
     owner_id: PyObjectId
 
     model_config = ConfigDict(
         populate_by_name=True,
     )
-
-    @field_serializer("id", "owner_id", when_used="json")
-    def serialize_objectid(self, obj_id: PyObjectId, _info):
-        return str(obj_id)
 
 
 class ItemsPublic(BaseModel):

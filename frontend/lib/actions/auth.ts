@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { authApiLogin } from "../services/auth-service";
 import { createSession } from "../session";
 import { revalidatePath } from "next/cache";
-import { LoginFormSchema } from "../zod-schemas/login-form-schema";
+import { LoginFormSchema } from "../validations/auth";
 
 export async function signIn(state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
   const rawFormData = {

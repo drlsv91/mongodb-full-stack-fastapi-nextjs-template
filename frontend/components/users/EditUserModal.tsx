@@ -1,16 +1,15 @@
 "use client";
-import SubmitButton from "../SubmitButton";
-import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
 import { useUsers } from "@/hooks/use-user-query";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { userUpdateSchema } from "@/lib/validations/user";
 import { User } from "@/types/user";
-import { toast } from "sonner";
 import { useEffect } from "react";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import SaveButton from "../ui/save-button";
+import { Switch } from "../ui/switch";
 
 interface EditUserModalProps {
   user: User | null;
@@ -35,7 +34,6 @@ export function EditUserModal({ user, isOpen, onClose }: Readonly<EditUserModalP
   const isActive = watch("is_active");
   const isSuperuser = watch("is_superuser");
 
-  // Update form values when user changes
   useEffect(() => {
     if (user) {
       reset({
@@ -47,7 +45,6 @@ export function EditUserModal({ user, isOpen, onClose }: Readonly<EditUserModalP
     }
   }, [user, reset]);
 
-  // Create a wrapped onClose function that resets the form
   const handleClose = () => {
     // Reset form data
     reset({
@@ -56,7 +53,7 @@ export function EditUserModal({ user, isOpen, onClose }: Readonly<EditUserModalP
       is_active: true,
       is_superuser: false,
     });
-    // Call the original onClose function
+
     onClose();
   };
 
@@ -64,7 +61,7 @@ export function EditUserModal({ user, isOpen, onClose }: Readonly<EditUserModalP
     if (!user) return;
 
     await updateUser({
-      id: user._id,
+      id: user.id,
       data,
     });
 
@@ -130,7 +127,7 @@ export function EditUserModal({ user, isOpen, onClose }: Readonly<EditUserModalP
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <SubmitButton loading={isUpdating}>Save Changes</SubmitButton>
+            <SaveButton loading={isUpdating} />
           </DialogFooter>
         </form>
       </DialogContent>

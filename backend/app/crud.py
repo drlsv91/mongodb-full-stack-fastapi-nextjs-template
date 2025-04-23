@@ -10,8 +10,8 @@ async def create_user(*, db: AsyncIOMotorDatabase, user_create: UserCreate) -> U
     user_data["hashed_password"] = get_password_hash(user_create.password)
 
     try:
-        result = await db.users.insert_one(user_data)
-        created_user = await db.users.find_one({"_id": result.inserted_id})
+        result = await User(**user_data).save(db)
+        created_user = await User.find_one(db=db, query={"_id": result.id})
         return User.model_validate(created_user)
     except ValidationError as e:
         raise ValueError(f"Invalid user data: {e}")
@@ -25,19 +25,20 @@ async def update_user(
     if user_in.password:
         user_data["hashed_password"] = get_password_hash(user_in.password)
 
-    updated_data = db_user.model_copy(update=user_data).model_dump(exclude={"id"})
+    updated_data = db_user.model_copy(update=user_data)
+    await updated_data.save(db)
 
-    await db.users.update_one({"_id": db_user.id}, {"$set": updated_data})
-
-    updated_user = await db.users.find_one({"_id": db_user.id})
+    updated_user = await User.find_one(db, {"_id": db_user.id})
     return User.model_validate(updated_user)
 
 
 async def get_user_by_email(*, db: AsyncIOMotorDatabase, email: str) -> User | None:
-    user_data = await db.users.find_one({"email": email})
+    user_data = await User.find_by_email(db=db, email=email)
+
     if not user_data:
         return None
     try:
+
         return User.model_validate(user_data)
     except ValidationError:
         return None
@@ -60,6 +61,6 @@ async def create_item(
     item_data = item_in.model_dump()
     item_data["owner_id"] = owner_id
 
-    result = await db.items.insert_one(item_data)
-    created_item = await db.items.find_one({"_id": result.inserted_id})
+    result = await Item(**item_data).save(db)
+    created_item = await Item.find_one(db, {"_id": result.inserted_id})
     return Item.model_validate(created_item)

@@ -37,7 +37,7 @@ export function UserList({ sessionUser }: Readonly<{ sessionUser: User }>) {
     if (!userToDelete) return;
 
     try {
-      await deleteUser(userToDelete._id);
+      await deleteUser(userToDelete.id);
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
     } catch (error) {
@@ -67,11 +67,11 @@ export function UserList({ sessionUser }: Readonly<{ sessionUser: User }>) {
             </TableHeader>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user._id}>
+                <TableRow key={user.id}>
                   <TableCell className="font-medium">
                     {user.email}
 
-                    {sessionUser._id == user._id && (
+                    {sessionUser.id == user.id && (
                       <Badge variant="outline" className="text-blue-700 bg-blue-100 ml-2">
                         You
                       </Badge>

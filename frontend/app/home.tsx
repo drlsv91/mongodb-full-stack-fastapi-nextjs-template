@@ -96,7 +96,7 @@ export default function Home() {
                 <li>Manage user roles and access</li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/users" className="flex items-center justify-between">
+                <Link href="/admin/users" className="flex items-center justify-between">
                   User Management
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -117,7 +117,7 @@ export default function Home() {
                 <li>Remove deprecated items</li>
               </ul>
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/items" className="flex items-center justify-between">
+                <Link href="/admin/items" className="flex items-center justify-between">
                   Item Management
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>

@@ -91,16 +91,16 @@ export function useItems() {
   });
 
   const handleViewItem = (item: Item) => {
-    router.push(`/admin/items/${item._id}`);
+    router.push(`/admin/items/${item.id}`);
   };
 
   const handleEditItem = (item: Item) => {
-    router.push(`/admin/items/${item._id}/edit`);
+    router.push(`/admin/items/${item.id}/edit`);
   };
 
   const handleDeleteItem = async (item: Item) => {
     if (confirm("Are you sure you want to delete this item?")) {
-      await deleteItemMutation.mutateAsync(item._id);
+      await deleteItemMutation.mutateAsync(item.id);
     }
   };
 

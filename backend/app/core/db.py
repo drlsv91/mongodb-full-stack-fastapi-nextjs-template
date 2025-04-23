@@ -1,12 +1,12 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app import crud
 from app.core.config import settings
-from app.models import UserCreate
+from app.models import UserCreate, User
 
 
 async def init_db(db: AsyncIOMotorDatabase) -> None:
     # Check if superuser exists
-    user = await db.users.find_one({"email": settings.FIRST_SUPERUSER})
+    user = await User.find_by_email(db, settings.FIRST_SUPERUSER)
 
     if not user:
         user_in = UserCreate(
